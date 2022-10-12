@@ -1,0 +1,25 @@
+{
+  "name": "yap4h",
+  "displayName": "yap4h",
+  "description": "Yet another p4 highlighter",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.72.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "contributes": {
+    "languages": [{
+      "id": "p4",
+      "aliases": ["P4", "p4"],
+      "extensions": [".p4"],
+      "configuration": "./language-configuration.json"
+    }],
+    "grammars": [{
+      "language": "p4",
+      "scopeName": "source.p4",
+      "path": "./syntaxes/p4.tmLanguage.json"
+    }]
+  }
+}
