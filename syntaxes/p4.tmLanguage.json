@@ -1,32 +1,563 @@
 {
-	"$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
-	"name": "P4",
-	"patterns": [
-		{
-			"include": "#keywords"
-		},
-		{
-			"include": "#strings"
-		}
-	],
-	"repository": {
-		"keywords": {
-			"patterns": [{
-				"name": "keyword.control.p4",
-				"match": "\\b(if|while|for|return)\\b"
-			}]
-		},
-		"strings": {
-			"name": "string.quoted.double.p4",
-			"begin": "\"",
-			"end": "\"",
-			"patterns": [
-				{
-					"name": "constant.character.escape.p4",
-					"match": "\\\\."
-				}
-			]
-		}
-	},
-	"scopeName": "source.p4"
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "P4",
+  "scopeName": "source.p4",
+  "patterns": [
+    {
+      "include": "#p4-language"
+    }
+  ],
+  "repository": {
+    "p4-language": {
+      "patterns": [
+        {
+          "include": "#p4-preprocessors"
+        },
+        {
+          "include": "#p4-comments"
+        },
+        {
+          "include": "#p4-keywords"
+        },
+        {
+          "include": "#p4-types"
+        },
+        {
+          "include": "#p4-decorators"
+        },
+        {
+          "include": "#p4-body"
+        },
+        {
+          "include": "#p4-literal-numbers"
+        },
+        {
+          "include": "#p4-strings"
+        }
+      ]
+    },
+    "p4-preprocessors": {
+      "patterns": [
+        {
+          "include": "#p4-preprocessor-define-directive"
+        },
+        {
+          "include": "#p4-preprocessor-ifndef-directive"
+        },
+        {
+          "include": "#p4-preprocessor-ifdef-directive"
+        },
+        {
+          "include": "#p4-preprocessor-if-directive"
+        },
+        {
+          "include": "#p4-preprocessor-else-directive"
+        },
+        {
+          "include": "#p4-preprocessor-elif-directive"
+        },
+        {
+          "include": "#p4-preprocessor-endif-directive"
+        },
+        {
+          "include": "#p4-preprocessor-include-directive"
+        }
+      ]
+    },
+    "p4-comments": {
+      "patterns": [
+        {
+          "name": "comment.block.p4",
+          "begin": "\\s*(/\\*)",
+          "end": "(\\*/)"
+        },
+        {
+          "name": "comment.line.double-slash.p4",
+          "begin": "\\s*(//)",
+          "end": "(?<=$\\n)(?<!\\\\$\\n)"
+        }
+      ]
+    },
+    "p4-keywords": {
+      "patterns": [
+        {
+          "name": "keyword.control.p4",
+          "match": "\\b(if|else|apply|return|select|transition|state|default)\\b"
+        },
+        {
+          "name": "variable.other.constant.parser.p4",
+          "match": "\\b(start|accept|reject|main)\\b"
+        },
+        {
+          "name": "entity.name.function.std.p4",
+          "match": "\\b(extract|advance|lookahead|emit|setInvalid|setValid)\\s*(?=[<\\(])"
+        },
+        {
+          "name": "entity.name.type.std.p4",
+          "match": "\\b(Pipeline|Switch|Register|RegisterAction)\\s*(?=[<\\(])"
+        }
+      ]
+    },
+    "p4-types": {
+      "patterns": [
+        {
+          "include": "#p4-base-types"
+        },
+        {
+          "include": "#p4-type-modifiers"
+        },
+        {
+          "include": "#p4-typedef"
+        },
+        {
+          "include": "#p4-struct-type-def"
+        },
+        {
+          "include": "#p4-enum-type-def"
+        },
+        {
+          "include": "#p4-constants"
+        },
+        {
+          "include": "#p4-header-type-def"
+        },
+        {
+          "include": "#p4-support-types"
+        }
+      ]
+    },
+    "p4-decorators": {
+      "patterns": [
+        {
+          "name": "entity.name.function.decorators.p4",
+          "match": "\\@[a-zA-Z0-9_]+\\b"
+        }
+      ]
+    },
+    "p4-body": {
+      "patterns": [
+        {
+          "include": "#p4-control"
+        },
+        {
+          "include": "#p4-parser"
+        }
+      ]
+    },
+    "p4-preprocessor-define-directive": {
+      "patterns": [
+        {
+          "name": "preprocessor.define.p4",
+          "begin": "^\\s*(#)\\s*(define)\\s+([a-zA-Z_]\\w*+)",
+          "beginCaptures": {
+            "1": {
+              "name": "punctuation.definition.directive.p4 keyword.control.directive.define.p4"
+            },
+            "2": {
+              "name": "keyword.control.directive.define.p4"
+            },
+            "3": {
+              "name": "entity.name.function.preprocessor.p4"
+            }
+          },
+          "end": "(?<=$\\n)(?<!\\\\$\\n)",
+          "patterns": [
+            {
+              "include": "#p4-keywords"
+            },
+            {
+              "include": "#p4-types"
+            },
+            {
+              "include": "#p4-literal-numbers"
+            },
+            {
+              "include": "#p4-lex-continuation"
+            }
+          ]
+        }
+      ]
+    },
+    "p4-preprocessor-ifndef-directive": {
+      "patterns": [
+        {
+          "match": "^\\s*(#)\\s*(ifndef)\\s+([a-zA-Z_]\\w*+)",
+          "captures": {
+            "1": {
+              "name": "punctuation.definition.directive.p4 keyword.control.directive.ifndef.p4"
+            },
+            "2": {
+              "name": "keyword.control.directive.ifndef.p4"
+            },
+            "3": {
+              "name": "entity.name.function.preprocessor.p4"
+            }
+          }
+        }
+      ]
+    },
+    "p4-preprocessor-ifdef-directive": {
+      "patterns": [
+        {
+          "match": "^\\s*(#)\\s*(ifdef)\\s+([a-zA-Z_]\\w*+)",
+          "captures": {
+            "1": {
+              "name": "punctuation.definition.directive.p4 keyword.control.directive.ifdef.p4"
+            },
+            "2": {
+              "name": "keyword.control.directive.ifdef.p4"
+            },
+            "3": {
+              "name": "entity.name.function.preprocessor.p4"
+            }
+          }
+        }
+      ]
+    },
+    "p4-preprocessor-if-directive": {
+      "patterns": [
+        {
+          "match": "^\\s*(#)\\s*(if)",
+          "captures": {
+            "1": {
+              "name": "punctuation.definition.directive.p4 keyword.control.directive.if.p4"
+            },
+            "2": {
+              "name": "keyword.control.directive.if.p4"
+            }
+          }
+        }
+      ]
+    },
+    "p4-preprocessor-elif-directive": {
+      "patterns": [
+        {
+          "match": "^\\s*(#)\\s*(elif)",
+          "captures": {
+            "1": {
+              "name": "punctuation.definition.directive.p4 keyword.control.directive.elif.p4"
+            },
+            "2": {
+              "name": "keyword.control.directive.elif.p4"
+            }
+          }
+        }
+      ]
+    },
+    "p4-preprocessor-else-directive": {
+      "patterns": [
+        {
+          "match": "^\\s*(#)\\s*(else)",
+          "captures": {
+            "1": {
+              "name": "punctuation.definition.directive.p4 keyword.control.directive.else.p4"
+            },
+            "2": {
+              "name": "keyword.control.directive.else.p4"
+            }
+          }
+        }
+      ]
+    },
+    "p4-preprocessor-endif-directive": {
+      "patterns": [
+        {
+          "match": "^\\s*(#)\\s*(endif)",
+          "captures": {
+            "1": {
+              "name": "punctuation.definition.directive.p4 keyword.control.directive.endif.p4"
+            },
+            "2": {
+              "name": "keyword.control.directive.endif.p4"
+            }
+          }
+        }
+      ]
+    },
+    "p4-preprocessor-include-directive": {
+      "patterns": [
+        {
+          "begin": "^\\s*((#)\\s*(include))\\b\\s*",
+          "beginCaptures": {
+            "1": {
+              "name": "punctuation.definition.directive.p4 keyword.control.directive.include.p4"
+            },
+            "2": {
+              "name": "keyword.control.directive.include.p4"
+            }
+          },
+          "end": "(?=(?://|/\\*))|(?<!\\\\)(?=\\n)",
+          "name": "meta.preprocessor.include.p4",
+          "patterns": [
+            {
+              "include": "#p4-strings"
+            },
+            {
+              "include": "#p4-lt-gt-includes"
+            }
+          ]
+        }
+      ]
+    },
+    "p4-base-types": {
+      "patterns": [
+        {
+          "match": "\\b(bit|int|varbit)(<)([0-9]+)(>)",
+          "captures": {
+            "1": {
+              "name": "storage.type.built-in.primitive.p4"
+            },
+            "2": {
+              "name": "keyword.operator.lt-bracket.p4"
+            },
+            "3": {
+              "name": "constant.numeric.p4"
+            },
+            "4": {
+              "name": "keyword.operator.gt-bracket.p4"
+            }
+          }
+        },
+        {
+          "name": "storage.type.built-in.primitive.p4",
+          "match": "\\b(void|error|match_kind|bool|int|bit|action|table)\\b"
+        },
+        {
+          "name": "storage.type.enum.p4",
+          "match": "\\b(enum)\\b"
+        }
+      ]
+    },
+    "p4-type-modifiers": {
+      "patterns": [
+        {
+          "name": "storage.modifier.p4",
+          "match": "\\b(const|extern|in|out|inout)\\b"
+        }
+      ]
+    },
+    "p4-typedef": {
+      "patterns": [
+        {
+          "match": "(?<=(typedef)\\s+[A-Za-z0-9<>_]+)\\s+([A-Za-z_]\\w*+)",
+          "captures": {
+            "2": {
+              "name": "entity.name.type.typedef.p4"
+            }
+          }
+        },
+        {
+          "name": "keyword.other.typedef.p4",
+          "match": "\\b(typedef)\\b"
+        }
+      ]
+    },
+    "p4-struct-type-def": {
+      "patterns": [
+        {
+          "match": "\\b(struct)\\s+([a-zA-Z_]\\w*+)",
+          "captures": {
+            "1": {
+              "name": "storage.type.struct.p4"
+            },
+            "2": {
+              "name": "entity.name.type.struct.p4"
+            }
+          }
+        }
+      ]
+    },
+    "p4-enum-type-def": {
+      "patterns": [
+        {
+          "begin": "(?<=(enum))\\s+([A-Za-z_]\\w*+)\\s+(?=\\{)",
+          "beginCaptures": {
+            "2": {
+              "name": "entity.name.type.enum.p4"
+            }
+          },
+          "end": "(?=\\})",
+          "patterns": [
+            {
+              "include": "#p4-base-types"
+            }
+          ]
+        },
+        {
+          "begin": "(?<=(enum)\\s+[A-Za-z0-9<>_]+)\\s+([A-Za-z_]\\w*+)\\s+(?=\\{)",
+          "beginCaptures": {
+            "2": {
+              "name": "entity.name.type.enum.p4"
+            }
+          },
+          "end": "(?=\\})",
+          "patterns": [
+            {
+              "include": "#p4-base-types"
+            }
+          ]
+        }
+      ]
+    },
+    "p4-constants": {
+      "patterns": [
+        {
+          "begin": "(?<=(const\\s+[A-Za-z0-9<>_]+))\\s+([A-Z0-9_]\\w*+)\\s*(=)\\s*(?=[0-9])",
+          "beginCaptures": {
+            "2": {
+              "name": "variable.other.constant.p4"
+            }
+          },
+          "end": "(?=(?://|/\\*))|(?<!\\\\)(?=\\n)",
+          "patterns": [
+            {
+              "include": "#p4-literal-numbers"
+            }
+          ]
+        },
+        {
+          "match": "(?<=(const))\\s+([A-Za-z_]\\w*+)(?!<)",
+          "captures": {
+            "2": {
+              "name": "entity.name.type.unknown.p4"
+            }
+          }
+        }
+      ]
+    },
+    "p4-header-type-def": {
+      "patterns": [
+        {
+          "match": "^\\s*(header)\\s+([a-zA-Z_]\\w*+)",
+          "captures": {
+            "1": {
+              "name": "storage.type.header.p4"
+            },
+            "2": {
+              "name": "entity.name.type.header.p4"
+            }
+          }
+        }
+      ]
+    },
+    "p4-support-types": {
+      "patterns": [
+        {
+          "name": "entity.name.type.unknown.p4",
+          "match": "\\b([A-Za-z0-9_]+_[th])\\b"
+        }
+      ]
+    },
+    "p4-control": {
+      "patterns": [
+        {
+          "match": "\\b(control)\\s+(?!(ingress|egress))([A-Za-z_]\\w*+)",
+          "captures": {
+            "1": {
+              "name": "storage.type.built-in.control.p4"
+            },
+            "3": {
+              "name": "entity.name.function.control.p4"
+            }
+          }
+        },
+        {
+          "match": "\\b(control)\\s+(ingress|egress)",
+          "captures": {
+            "1": {
+              "name": "storage.type.built-in.control.p4"
+            },
+            "2": {
+              "name": "entity.name.type.ingress-egress.p4"
+            }
+          }
+        }
+      ]
+    },
+    "p4-parser": {
+      "patterns": [
+        {
+          "match": "\\b(parser)\\s+([A-Za-z_]\\w*+)",
+          "captures": {
+            "1": {
+              "name": "storage.type.built-in.parser.p4"
+            },
+            "2": {
+              "name": "entity.name.function.parser.p4"
+            }
+          }
+        }
+      ]
+    },
+    "p4-literal-numbers": {
+      "patterns": [
+        {
+          "name": "invalid.illegal.numeric.hex.p4",
+          "match": "(?i)(?:\\B[-+]|\\b)0x[0-9a-f]*\\.(\\B|\\b[0-9]+)"
+        },
+        {
+          "name": "invalid.illegal.numeric.octal.p4",
+          "match": "(?:\\B[-+]|\\b)0[0-9]+\\.(\\B|\\b[0-9]+)"
+        },
+        {
+          "name": "constant.numeric.p4",
+          "match": "(?xi)\n  (?:\\B[-+])?\n  (?:\n    \\b0b[0-1]*|\n    \\b0o[0-7]*|\n    \\b0x[0-9a-f]*|\n    (\n      \\B\\.[0-9]+|\n      \\b[0-9]+(\\.[0-9]*)?\n    )(e[-+]?[0-9]+)?\n  (\\s|;)\n  )"
+        }
+      ]
+    },
+    "p4-strings": {
+      "patterns": [
+        {
+          "begin": "\\\"",
+          "beginCaptures": {
+            "0": {
+              "name": "punctuation.definition.string.begin.p4"
+            }
+          },
+          "end": "\\\"",
+          "endCaptures": {
+            "0": {
+              "name": "punctuation.definition.string.end.p4"
+            }
+          },
+          "name": "string.quoted.double.p4"
+        }
+      ]
+    },
+    "p4-lt-gt-includes": {
+      "patterns": [
+        {
+          "begin": "<",
+          "beginCaptures": {
+            "0": {
+              "name": "punctuation.definition.string.begin.p4"
+            }
+          },
+          "end": "\\>",
+          "endCaptures": {
+            "0": {
+              "name": "punctuation.definition.string.end.p4"
+            }
+          },
+          "name": "string.quoted.lt-gt.p4"
+        }
+      ]
+    },
+    "p4-lex-continuation": {
+      "patterns": [
+        {
+          "name": "punctuation.separator.continuation.p4",
+          "match": "(\\\\)$(\\n?)",
+          "captures": {
+            "1": {
+              "name": "constant.character.escape.p4"
+            },
+            "2": {
+              "name": "punctuation.whitespace.newline.p4"
+            }
+          }
+        }
+      ]
+    }
+  }
 }
