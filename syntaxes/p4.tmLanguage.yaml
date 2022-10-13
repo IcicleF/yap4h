@@ -10,10 +10,10 @@ repository:
     patterns:
     - include: "#p4-preprocessors"
     - include: "#p4-comments"
-    - include: "#p4-keywords"
-    - include: "#p4-types"
-    - include: "#p4-decorators"
     - include: "#p4-body"
+    - include: "#p4-types"
+    - include: "#p4-keywords"
+    - include: "#p4-decorators"
     - include: "#p4-literal-numbers"
     - include: "#p4-strings"
   
@@ -39,14 +39,18 @@ repository:
 
   p4-keywords:
     patterns:
-    - name: keyword.control.p4
-      match: \b(if|else|apply|return|select|transition|state|default)\b
-    - name: variable.other.constant.parser.p4
-      match: \b(start|accept|reject|main)\b
+    - name: keyword.control.$1.p4
+      match: \b(if|else|apply|select|return|transition|state|default|accept|reject)\b
+    - name: variable.other.constant.$1.p4
+      match: \b(main)\b
+    - name: variable.other.constant.match-kind.p4
+      match: \b(exact|ternary|lpm)
+    - name: entity.name.tag.p4
+      match: \b(key|actions)
     - name: entity.name.function.std.p4
       match: \b(extract|advance|lookahead|emit|setInvalid|setValid)\s*(?=[<\(])
     - name: entity.name.type.std.p4
-      match: \b(Pipeline|Switch|Register|RegisterAction)\s*(?=[<\(])
+      match: \b(Pipeline|Switch)\b
 
   p4-types:
     patterns:
@@ -56,6 +60,7 @@ repository:
     - include: "#p4-struct-type-def"
     - include: "#p4-enum-type-def"
     - include: "#p4-constants"
+    - include: "#p4-members"
     - include: "#p4-header-type-def"
     - include: "#p4-support-types"
 
@@ -66,8 +71,8 @@ repository:
 
   p4-body:
     patterns:
-    - include: "#p4-control"
-    - include: "#p4-parser"
+    - include: "#p4-select"
+    - include: "#p4-functions"
 
   p4-preprocessor-define-directive:
     patterns:
@@ -83,6 +88,7 @@ repository:
       - include: "#p4-types"
       - include: "#p4-literal-numbers"
       - include: "#p4-lex-continuation"
+      - include: "#p4-comments"
 
   p4-preprocessor-ifndef-directive:
     patterns:
@@ -149,14 +155,14 @@ repository:
         3: {name: constant.numeric.p4}
         4: {name: keyword.operator.gt-bracket.p4}
     - name: storage.type.built-in.primitive.p4
-      match: \b(void|error|match_kind|bool|int|bit|action|table)\b
+      match: \b(void|error|match_kind|bool|int|bit|control|parser|action|table)\b
     - name: storage.type.enum.p4
       match: \b(enum)\b
   
   p4-type-modifiers:
     patterns:
     - name: storage.modifier.p4
-      match: \b(const|extern|in|out|inout)\b
+      match: \b(const|extern|in|out|inout|packet_in|packet_out)\b
 
   p4-typedef:
     patterns:
@@ -200,6 +206,11 @@ repository:
       captures:
         2: {name: entity.name.type.unknown.p4}
 
+  p4-members:
+    patterns:
+    - name: variable.other.property.p4
+      match: (?<=\.)([A-Za-z_]\w*+)(?![<\(])
+
   p4-header-type-def:
     patterns:
     - match: ^\s*(header)\s+([a-zA-Z_]\w*+)
@@ -212,23 +223,52 @@ repository:
     - name: entity.name.type.unknown.p4
       match: \b([A-Za-z0-9_]+_[th])\b
   
-  p4-control:
+  p4-select:
     patterns:
-    - match: \b(control)\s+(?!(ingress|egress))([A-Za-z_]\w*+)
-      captures:
-        1: {name: storage.type.built-in.control.p4}
-        3: {name: entity.name.function.control.p4}
-    - match: \b(control)\s+(ingress|egress)
-      captures:
-        1: {name: storage.type.built-in.control.p4}
-        2: {name: entity.name.type.ingress-egress.p4}
+    - begin: \b(select)\s*
+      beginCaptures:
+        1: {name: keyword.control.p4}
+      end: (?:\})
+      patterns:
+      - include: "#p4-types"
+      - match: "\\b([A-Za-z_]\\w*+)\\s*:\\s*(?!(accept|reject))([A-Za-z_]\\w*+)"
+        captures:
+          1: {name: variable.other.constant.select.p4}
+          3: {name: entity.name.function.select.p4}
+      - match: "\\b([A-Za-z_]\\w*+)\\s*:\\s*(accept|reject)"
+        captures:
+          1: {name: variable.other.constant.select.p4}
+          2: {name: keyword.control.$2.p4}
 
-  p4-parser:
+  p4-functions:
     patterns:
+    - match: \b(control)\s+([A-Za-z_]\w*+)
+      captures:
+        1: {name: storage.type.built-in.control.p4}
+        2: {name: entity.name.function.control.p4}
     - match: \b(parser)\s+([A-Za-z_]\w*+)
       captures:
         1: {name: storage.type.built-in.parser.p4}
         2: {name: entity.name.function.parser.p4}
+    - match: \b(action)\s+([A-Za-z_]\w*+)\s*(?=\()
+      captures:
+        1: {name: storage.type.built-in.action.p4}
+        2: {name: entity.name.function.action.p4}
+    - match: \b(table)\s+([A-Za-z_]\w*+)\s*(?=\{)
+      captures:
+        1: {name: storage.type.built-in.table.p4}
+        2: {name: entity.name.function.table.p4}
+    - match: \b(state)\s+(?!(start))([A-Za-z_]\w*+)\s*(?=\{)
+      captures:
+        1: {name: keyword.control.state.p4}
+        3: {name: entity.name.function.state.p4}
+    - match: \b(state)\s+(start)\s*(?=\{)
+      captures:
+        1: {name: keyword.control.state.p4}
+        2: {name: variable.other.constant.start.p4}
+    - match: \b([A-Za-z_]\w*+)(?=\(\))
+      captures:
+        1: {name: entity.name.function.p4}
   
   p4-literal-numbers:
     patterns:
@@ -247,6 +287,20 @@ repository:
             (
               \B\.[0-9]+|
               \b[0-9]+(\.[0-9]*)?
+            )(e[-+]?[0-9]+)?
+          (\s|;)
+          )
+    - name: constant.numeric.p4
+      match: >-
+        (?xi)
+          (?:\B[-+])?
+          (?:
+            \b[0-9]+[ws]0b[0-1]*|
+            \b[0-9]+[ws]0o[0-7]*|
+            \b[0-9]+[ws]0x[0-9a-f]*|
+            [0-9]+[ws](
+              \.[0-9]+|
+              [0-9]+(\.[0-9]*)?
             )(e[-+]?[0-9]+)?
           (\s|;)
           )
