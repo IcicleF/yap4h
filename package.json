@@ -21,5 +21,9 @@
       "scopeName": "source.p4",
       "path": "./syntaxes/p4.tmLanguage.json"
     }]
+  },
+  "repository": {
+    "type": "github",
+    "url": "https://github.com/IcicleF/yap4h"
   }
 }
