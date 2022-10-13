@@ -82,7 +82,15 @@
       "patterns": [
         {
           "name": "keyword.control.$1.p4",
-          "match": "\\b(if|else|apply|select|return|transition|state|default|accept|reject)\\b"
+          "match": "\\b(if|else|apply|select|return|transition|state|default)\\b"
+        },
+        {
+          "name": "keyword.language.$1.p4",
+          "match": "\\b(accept|reject)\\b"
+        },
+        {
+          "name": "constant.language.$1.p4",
+          "match": "\\b(true|false)\\b"
         },
         {
           "name": "variable.other.constant.$1.p4",
@@ -90,19 +98,19 @@
         },
         {
           "name": "variable.other.constant.match-kind.p4",
-          "match": "\\b(exact|ternary|lpm)"
+          "match": "\\b(exact|ternary|lpm|range)"
         },
         {
-          "name": "entity.name.tag.p4",
+          "name": "entity.name.tag.table.p4",
           "match": "\\b(key|actions)"
         },
         {
           "name": "entity.name.function.std.p4",
-          "match": "\\b(extract|advance|lookahead|emit|setInvalid|setValid)\\s*(?=[<\\(])"
+          "match": "\\b(extract|advance|lookahead|emit|setInvalid|setValid|isValid)\\s*(?=[<\\(])"
         },
         {
           "name": "entity.name.type.std.p4",
-          "match": "\\b(Pipeline|Switch)\\b"
+          "match": "\\b(Pipeline|Switch|Register|RegisterAction|DirectRegister|DirectRegisterAction|Hash|HashAlgorithm)\\b"
         }
       ]
     },
@@ -110,6 +118,9 @@
       "patterns": [
         {
           "include": "#p4-base-types"
+        },
+        {
+          "include": "#p4-extra-types"
         },
         {
           "include": "#p4-type-modifiers"
@@ -152,6 +163,9 @@
         },
         {
           "include": "#p4-functions"
+        },
+        {
+          "include": "#p4-table-contents"
         }
       ]
     },
@@ -334,11 +348,27 @@
         },
         {
           "name": "storage.type.built-in.primitive.p4",
-          "match": "\\b(void|error|match_kind|bool|int|bit|control|parser|action|table)\\b"
+          "match": "\\b(void|error|match_kind|bool|int|bit)\\b"
+        },
+        {
+          "name": "storage.type.built-in.primitive.p4",
+          "match": "\\b(control|parser|action|table)\\b"
         },
         {
           "name": "storage.type.enum.p4",
           "match": "\\b(enum)\\b"
+        }
+      ]
+    },
+    "p4-extra-types": {
+      "patterns": [
+        {
+          "match": "^\\s*([A-Z]\\w*+)\\(\\)\\s+(?=[A-Za-z_])",
+          "captures": {
+            "1": {
+              "name": "entity.name.function.p4"
+            }
+          }
         }
       ]
     },
@@ -430,7 +460,7 @@
           ]
         },
         {
-          "match": "(?<=(const))\\s+([A-Za-z_]\\w*+)(?!<)",
+          "match": "(?<=(const))\\s+(?!(entries))([A-Za-z_]\\w*+)(?!<)",
           "captures": {
             "2": {
               "name": "entity.name.type.unknown.p4"
@@ -441,6 +471,10 @@
     },
     "p4-members": {
       "patterns": [
+        {
+          "name": "variable.other.constant.p4",
+          "match": "(?<=(_t\\.))([A-Za-z_]\\w*+)(?![<\\(])"
+        },
         {
           "name": "variable.other.property.p4",
           "match": "(?<=\\.)([A-Za-z_]\\w*+)(?![<\\(])"
@@ -482,27 +516,41 @@
           "end": "(?:\\})",
           "patterns": [
             {
+              "include": "#p4-preprocessors"
+            },
+            {
+              "include": "#p4-keywords"
+            },
+            {
+              "include": "#p4-comments"
+            },
+            {
               "include": "#p4-types"
             },
             {
-              "match": "\\b([A-Za-z_]\\w*+)\\s*:\\s*(?!(accept|reject))([A-Za-z_]\\w*+)",
+              "include": "#p4-literal-numbers"
+            },
+            {
+              "match": "(?<=(:))\\s*(?!(accept|reject))([A-Za-z_]\\w*+)",
               "captures": {
-                "1": {
-                  "name": "variable.other.constant.select.p4"
-                },
                 "3": {
                   "name": "entity.name.function.select.p4"
                 }
               }
             },
             {
-              "match": "\\b([A-Za-z_]\\w*+)\\s*:\\s*(accept|reject)",
+              "match": "(?<=(:))\\s*(accept|reject)",
               "captures": {
-                "1": {
-                  "name": "variable.other.constant.select.p4"
-                },
                 "2": {
-                  "name": "keyword.control.$2.p4"
+                  "name": "keyword.language.$2.p4"
+                }
+              }
+            },
+            {
+              "match": "\\b(?!(default))([A-Za-z_]\\w*+)\\s*(?=(:))",
+              "captures": {
+                "2": {
+                  "name": "variable.other.constant.select.p4"
                 }
               }
             }
@@ -519,7 +567,7 @@
               "name": "storage.type.built-in.control.p4"
             },
             "2": {
-              "name": "entity.name.function.control.p4"
+              "name": "entity.name.type.control.p4"
             }
           }
         },
@@ -579,10 +627,65 @@
           }
         },
         {
-          "match": "\\b([A-Za-z_]\\w*+)(?=\\(\\))",
+          "match": "\\b(transition)\\s+(?!(select|accept|reject))([A-Za-z_]\\w*+)",
+          "captures": {
+            "1": {
+              "name": "keyword.control.transition.p4"
+            },
+            "3": {
+              "name": "entity.name.function.transition.p4"
+            }
+          }
+        },
+        {
+          "match": "\\b([A-Za-z_]\\w*+)(?=\\(\\))(?!(\\s*[A-Za-z_]))",
           "captures": {
             "1": {
               "name": "entity.name.function.p4"
+            }
+          }
+        },
+        {
+          "match": "\\b(apply)\\s*(?:\\()",
+          "captures": {
+            "1": {
+              "name": "entity.name.function.apply.p4"
+            }
+          }
+        }
+      ]
+    },
+    "p4-table-contents": {
+      "patterns": [
+        {
+          "begin": "\\b(actions)\\s*(\\=)\\s*(?=\\{)",
+          "beginCaptures": {
+            "1": {
+              "name": "entity.name.tag.table.p4"
+            }
+          },
+          "end": "(?=\\})",
+          "patterns": [
+            {
+              "include": "#p4-preprocessors"
+            },
+            {
+              "include": "#p4-comments"
+            },
+            {
+              "name": "entity.name.function.action.p4",
+              "match": "([A-Za-z_]\\w*+)(?=(;))"
+            }
+          ]
+        },
+        {
+          "match": "\\b(const)\\s+(entries)\\s*(?=(\\=))",
+          "captures": {
+            "1": {
+              "name": "storage.modifier.table.entries.p4"
+            },
+            "2": {
+              "name": "storage.type.table.entries.p4"
             }
           }
         }
@@ -600,11 +703,11 @@
         },
         {
           "name": "constant.numeric.p4",
-          "match": "(?xi)\n  (?:\\B[-+])?\n  (?:\n    \\b0b[0-1]*|\n    \\b0o[0-7]*|\n    \\b0x[0-9a-f]*|\n    (\n      \\B\\.[0-9]+|\n      \\b[0-9]+(\\.[0-9]*)?\n    )(e[-+]?[0-9]+)?\n  (\\s|;)\n  )"
+          "match": "(?xi)\n  (?:\\B[-+])?\n  (?:\n    \\b0b[0-1]*|\n    \\b0o[0-7]*|\n    \\b0x[0-9a-f]*|\n    (\n      \\B\\.[0-9]+|\n      \\b[0-9]+(\\.[0-9]*)?\n    )(e[-+]?[0-9]+)?\n  (?=(\\s|,|:|;|\\}|\\]))\n  )"
         },
         {
           "name": "constant.numeric.p4",
-          "match": "(?xi)\n  (?:\\B[-+])?\n  (?:\n    \\b[0-9]+[ws]0b[0-1]*|\n    \\b[0-9]+[ws]0o[0-7]*|\n    \\b[0-9]+[ws]0x[0-9a-f]*|\n    [0-9]+[ws](\n      \\.[0-9]+|\n      [0-9]+(\\.[0-9]*)?\n    )(e[-+]?[0-9]+)?\n  (\\s|;)\n  )"
+          "match": "(?xi)\n  (?:\\B[-+])?\n  (?:\n    \\b[0-9]+[ws]0b[0-1]*|\n    \\b[0-9]+[ws]0o[0-7]*|\n    \\b[0-9]+[ws]0x[0-9a-f]*|\n    [0-9]+[ws](\n      \\.[0-9]+|\n      [0-9]+(\\.[0-9]*)?\n    )(e[-+]?[0-9]+)?\n  (?=(\\s|,|:|;|\\}|\\]))\n  )"
         }
       ]
     },

@@ -1,1 +1,0 @@
-npx js-yaml .\p4.tmLanguage.yaml | Out-File -Encoding utf8NoBOM .\p4.tmLanguage.json
