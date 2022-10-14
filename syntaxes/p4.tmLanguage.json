@@ -26,6 +26,9 @@
           "include": "#p4-keywords"
         },
         {
+          "include": "#p4-punctuations"
+        },
+        {
           "include": "#p4-decorators"
         },
         {
@@ -98,19 +101,31 @@
         },
         {
           "name": "variable.other.constant.match-kind.p4",
-          "match": "\\b(exact|ternary|lpm|range)"
+          "match": "\\b(exact|ternary|lpm|range|selector)"
         },
         {
           "name": "entity.name.tag.table.p4",
-          "match": "\\b(key|actions)"
+          "match": "\\b(key|actions|default_action)"
         },
         {
           "name": "entity.name.function.std.p4",
-          "match": "\\b(extract|advance|lookahead|emit|setInvalid|setValid|isValid)\\s*(?=[<\\(])"
+          "match": "\\b(extract|advance|lookahead|emit|execute|setInvalid|setValid|isValid)\\s*(?=[<\\(])"
         },
         {
           "name": "entity.name.type.std.p4",
-          "match": "\\b(Pipeline|Switch|Register|RegisterAction|DirectRegister|DirectRegisterAction|Hash|HashAlgorithm)\\b"
+          "match": "\\b(Pipeline|Switch|Register|RegisterAction|DirectRegister|DirectRegisterAction|Checksum)\\b"
+        }
+      ]
+    },
+    "p4-punctuations": {
+      "patterns": [
+        {
+          "match": "(?<=(\\W|_))(_)(?=(\\W|_))",
+          "captures": {
+            "2": {
+              "name": "variable.omitted.p4"
+            }
+          }
         }
       ]
     },
@@ -462,7 +477,7 @@
         {
           "match": "(?<=(const))\\s+(?!(entries))([A-Za-z_]\\w*+)(?!<)",
           "captures": {
-            "2": {
+            "3": {
               "name": "entity.name.type.unknown.p4"
             }
           }
@@ -507,7 +522,7 @@
     "p4-select": {
       "patterns": [
         {
-          "begin": "\\b(select)\\s*",
+          "begin": "\\b(select)\\s*(?=\\()",
           "beginCaptures": {
             "1": {
               "name": "keyword.control.p4"
@@ -567,7 +582,7 @@
               "name": "storage.type.built-in.control.p4"
             },
             "2": {
-              "name": "entity.name.type.control.p4"
+              "name": "entity.name.function.control.p4"
             }
           }
         },
@@ -703,11 +718,11 @@
         },
         {
           "name": "constant.numeric.p4",
-          "match": "(?xi)\n  (?:\\B[-+])?\n  (?:\n    \\b0b[0-1]*|\n    \\b0o[0-7]*|\n    \\b0x[0-9a-f]*|\n    (\n      \\B\\.[0-9]+|\n      \\b[0-9]+(\\.[0-9]*)?\n    )(e[-+]?[0-9]+)?\n  (?=(\\s|,|:|;|\\}|\\]))\n  )"
+          "match": "(?xi)\n  (?:\\B[-+])?\n  (?:\n    \\b0b[0-1]*|\n    \\b0o[0-7]*|\n    \\b0x[0-9a-f]*|\n    (\n      \\B\\.[0-9]+|\n      \\b[0-9]+(\\.[0-9]*)?\n    )(e[-+]?[0-9]+)?\n  (?=(\\s|,|:|;|\\}|\\]|\\)))\n  )"
         },
         {
           "name": "constant.numeric.p4",
-          "match": "(?xi)\n  (?:\\B[-+])?\n  (?:\n    \\b[0-9]+[ws]0b[0-1]*|\n    \\b[0-9]+[ws]0o[0-7]*|\n    \\b[0-9]+[ws]0x[0-9a-f]*|\n    [0-9]+[ws](\n      \\.[0-9]+|\n      [0-9]+(\\.[0-9]*)?\n    )(e[-+]?[0-9]+)?\n  (?=(\\s|,|:|;|\\}|\\]))\n  )"
+          "match": "(?xi)\n  (?:\\B[-+])?\n  (?:\n    \\b[0-9]+[ws]0b[0-1]*|\n    \\b[0-9]+[ws]0o[0-7]*|\n    \\b[0-9]+[ws]0x[0-9a-f]*|\n    [0-9]+[ws](\n      \\.[0-9]+|\n      [0-9]+(\\.[0-9]*)?\n    )(e[-+]?[0-9]+)?\n  (?=(\\s|,|:|;|\\}|\\]|\\)))\n  )"
         }
       ]
     },

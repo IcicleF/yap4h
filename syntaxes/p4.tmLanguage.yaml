@@ -13,6 +13,7 @@ repository:
     - include: "#p4-body"
     - include: "#p4-types"
     - include: "#p4-keywords"
+    - include: "#p4-punctuations"
     - include: "#p4-decorators"
     - include: "#p4-literal-numbers"
     - include: "#p4-strings"
@@ -48,13 +49,19 @@ repository:
     - name: variable.other.constant.$1.p4
       match: \b(main)\b
     - name: variable.other.constant.match-kind.p4
-      match: \b(exact|ternary|lpm|range)
+      match: \b(exact|ternary|lpm|range|selector)
     - name: entity.name.tag.table.p4
-      match: \b(key|actions)
+      match: \b(key|actions|default_action)
     - name: entity.name.function.std.p4
-      match: \b(extract|advance|lookahead|emit|setInvalid|setValid|isValid)\s*(?=[<\(])
+      match: \b(extract|advance|lookahead|emit|execute|setInvalid|setValid|isValid)\s*(?=[<\(])
     - name: entity.name.type.std.p4
-      match: \b(Pipeline|Switch|Register|RegisterAction|DirectRegister|DirectRegisterAction|Hash|HashAlgorithm)\b
+      match: \b(Pipeline|Switch|Register|RegisterAction|DirectRegister|DirectRegisterAction|Checksum)\b
+
+  p4-punctuations:
+    patterns:
+    - match: (?<=(\W|_))(_)(?=(\W|_))
+      captures:
+        2: {name: variable.omitted.p4}
 
   p4-types:
     patterns:
@@ -218,7 +225,7 @@ repository:
       - include: "#p4-literal-numbers"
     - match: (?<=(const))\s+(?!(entries))([A-Za-z_]\w*+)(?!<)
       captures:
-        2: {name: entity.name.type.unknown.p4}
+        3: {name: entity.name.type.unknown.p4}
 
   p4-members:
     patterns:
@@ -241,7 +248,7 @@ repository:
   
   p4-select:
     patterns:
-    - begin: \b(select)\s*
+    - begin: \b(select)\s*(?=\()
       beginCaptures:
         1: {name: keyword.control.p4}
       end: (?:\})
@@ -266,7 +273,7 @@ repository:
     - match: \b(control)\s+([A-Za-z_]\w*+)
       captures:
         1: {name: storage.type.built-in.control.p4}
-        2: {name: entity.name.type.control.p4}
+        2: {name: entity.name.function.control.p4}
     - match: \b(parser)\s+([A-Za-z_]\w*+)
       captures:
         1: {name: storage.type.built-in.parser.p4}
@@ -332,7 +339,7 @@ repository:
               \B\.[0-9]+|
               \b[0-9]+(\.[0-9]*)?
             )(e[-+]?[0-9]+)?
-          (?=(\s|,|:|;|\}|\]))
+          (?=(\s|,|:|;|\}|\]|\)))
           )
     - name: constant.numeric.p4
       match: >-
@@ -346,7 +353,7 @@ repository:
               \.[0-9]+|
               [0-9]+(\.[0-9]*)?
             )(e[-+]?[0-9]+)?
-          (?=(\s|,|:|;|\}|\]))
+          (?=(\s|,|:|;|\}|\]|\)))
           )
 
   p4-strings:
