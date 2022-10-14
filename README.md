@@ -4,7 +4,9 @@ Yet another P4 highlighter.
 
 ## Features
 
-Minimized syntax highlight for P4-16 programs.
+Minimized, probably incorrect (but in many times useful) syntax highlighting for P4-16 programs.
+
+No support for P4-14.
 
 ## Requirements
 
