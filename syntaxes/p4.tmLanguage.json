@@ -17,13 +17,16 @@
           "include": "#p4-comments"
         },
         {
+          "include": "#p4-keywords"
+        },
+        {
           "include": "#p4-body"
         },
         {
           "include": "#p4-types"
         },
         {
-          "include": "#p4-keywords"
+          "include": "#p4-words"
         },
         {
           "include": "#p4-decorators"
@@ -81,6 +84,9 @@
     "p4-keywords": {
       "patterns": [
         {
+          "include": "#p4-keywords-with-context"
+        },
+        {
           "name": "keyword.control.$1.p4",
           "match": "\\b(if|else|apply|select|return|transition|default)\\b"
         },
@@ -91,20 +97,6 @@
         {
           "name": "constant.language.$1.p4",
           "match": "\\b(true|false)\\b"
-        },
-        {
-          "name": "variable.other.constant.$1.p4",
-          "match": "\\b(main)\\b"
-        },
-        {
-          "name": "entity.name.tag.table.p4",
-          "match": "\\b(key|actions|default_action)"
-        },
-        {
-          "include": "#p4-std"
-        },
-        {
-          "include": "#p4-tofino"
         }
       ]
     },
@@ -150,6 +142,27 @@
         }
       ]
     },
+    "p4-words": {
+      "patterns": [
+        {
+          "include": "#p4-keywords"
+        },
+        {
+          "name": "variable.other.constant.$1.p4",
+          "match": "\\b(main)\\b"
+        },
+        {
+          "name": "entity.name.tag.table.p4",
+          "match": "\\b(key|actions|default_action)"
+        },
+        {
+          "include": "#p4-std"
+        },
+        {
+          "include": "#p4-tofino"
+        }
+      ]
+    },
     "p4-decorators": {
       "patterns": [
         {
@@ -160,9 +173,6 @@
     },
     "p4-body": {
       "patterns": [
-        {
-          "include": "#p4-select"
-        },
         {
           "include": "#p4-functions"
         },
@@ -183,7 +193,7 @@
         },
         {
           "name": "entity.name.function.std.p4",
-          "match": "\\b(extract|advance|lookahead|emit|execute|setInvalid|setValid|isValid)\\s*(?=[<\\(])"
+          "match": "\\b(extract|advance|lookahead|emit|setInvalid|setValid|isValid)\\s*(?=[<\\(])"
         },
         {
           "name": "entity.name.type.std.p4",
@@ -194,8 +204,12 @@
     "p4-tofino": {
       "patterns": [
         {
+          "name": "entity.name.function.preprocessor.p4",
+          "match": "\\b(__TARGET_TOFINO__)\\b"
+        },
+        {
           "name": "entity.name.function.std.p4",
-          "match": "\\b(max|min|invalidate|port_metadata_unpack)"
+          "match": "\\b(max|min|invalidate|port_metadata_unpack|execute)\\b"
         },
         {
           "name": "variable.other.constant.match-kind.tofino.p4",
@@ -212,6 +226,18 @@
         {
           "name": "entity.name.type.tofino.p4",
           "match": "\\b(Checksum|ParserCounter|ParserPriority|CRCPolymial|Hash|Random|Counter|DirectCounter|Meter|DirectMeter|Lpf|DirectLpf|Wred|DirectWred|Register|DirectRegister|RegisterParam|MathUnit|RegisterAction|DirectRegisterAction|ActionSelector|ActionProfile|Mirror|Resubmit|Digest)\\b"
+        }
+      ]
+    },
+    "p4-conventions": {
+      "patterns": [
+        {
+          "name": "variable.convention.$1.p4",
+          "match": "\\b(pkt|hdr|meta)\\b"
+        },
+        {
+          "name": "variable.convention.meta.p4",
+          "match": "\\b(((ig|eg)(_(intr|prsr|dprsr))?_md)|(ig_tm_md|eg_oport_md))\\b"
         }
       ]
     },
@@ -234,7 +260,7 @@
           "end": "(?<=$\\n)(?<!\\\\$\\n)",
           "patterns": [
             {
-              "include": "#p4-keywords"
+              "include": "#p4-words"
             },
             {
               "include": "#p4-types"
@@ -409,14 +435,6 @@
     "p4-extra-types": {
       "patterns": [
         {
-          "match": "^\\s*([A-Z]\\w*+)\\(\\)\\s+(?=[A-Za-z_])",
-          "captures": {
-            "1": {
-              "name": "entity.name.function.p4"
-            }
-          }
-        },
-        {
           "match": "\\b(package)\\s+([A-Z]\\w*+)\\s*(?=[<\\(])",
           "captures": {
             "1": {
@@ -480,7 +498,7 @@
           "end": "(?=\\})",
           "patterns": [
             {
-              "include": "#p4-keywords"
+              "include": "#p4-words"
             },
             {
               "include": "#p4-types"
@@ -506,7 +524,7 @@
           "end": "(?=\\})",
           "patterns": [
             {
-              "include": "#p4-keywords"
+              "include": "#p4-words"
             },
             {
               "include": "#p4-types"
@@ -585,6 +603,32 @@
         }
       ]
     },
+    "p4-keywords-with-context": {
+      "patterns": [
+        {
+          "include": "#p4-select"
+        },
+        {
+          "match": "(?<=(\\.))\\s*(apply)\\b",
+          "captures": {
+            "2": {
+              "name": "entity.name.function.apply.p4"
+            }
+          }
+        },
+        {
+          "match": "\\b(transition)\\s+(?!(select|accept|reject))([A-Za-z_]\\w*+)",
+          "captures": {
+            "1": {
+              "name": "keyword.control.transition.p4"
+            },
+            "3": {
+              "name": "entity.name.function.transition.p4"
+            }
+          }
+        }
+      ]
+    },
     "p4-select": {
       "patterns": [
         {
@@ -600,7 +644,7 @@
               "include": "#p4-preprocessors"
             },
             {
-              "include": "#p4-keywords"
+              "include": "#p4-words"
             },
             {
               "include": "#p4-comments"
@@ -636,6 +680,18 @@
               }
             }
           ]
+        }
+      ]
+    },
+    "p4-ctor": {
+      "patterns": [
+        {
+          "match": "\\b([A-Za-z_]\\w*+)\\s*(?=\\(\\))\\b",
+          "captures": {
+            "1": {
+              "name": "entity.name.function.ctor.p4"
+            }
+          }
         }
       ]
     },
@@ -708,15 +764,24 @@
           }
         },
         {
-          "match": "\\b(transition)\\s+(?!(select|accept|reject))([A-Za-z_]\\w*+)",
-          "captures": {
+          "begin": "\\b(Pipeline|Switch)\\s*(?=\\()",
+          "beginCaptures": {
             "1": {
-              "name": "keyword.control.transition.p4"
-            },
-            "3": {
-              "name": "entity.name.function.transition.p4"
+              "name": "entity.name.type.std.p4"
             }
-          }
+          },
+          "end": "(?=(\\)\\s+\\w))",
+          "patterns": [
+            {
+              "include": "#p4-preprocessors"
+            },
+            {
+              "include": "#p4-ctor"
+            },
+            {
+              "include": "#p4-comments"
+            }
+          ]
         },
         {
           "begin": "\\b([A-Za-z_]\\w*+)\\s*(?=\\()",
@@ -731,7 +796,7 @@
               "include": "#p4-preprocessors"
             },
             {
-              "include": "#p4-keywords"
+              "include": "#p4-words"
             },
             {
               "include": "#p4-comments"
