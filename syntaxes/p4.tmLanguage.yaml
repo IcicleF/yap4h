@@ -93,7 +93,7 @@ repository:
     - name: entity.name.function.std.p4
       match: \b(extract|advance|lookahead|emit|setInvalid|setValid|isValid)\s*(?=[<\(])
     - name: entity.name.type.std.p4
-      match: \b(Pipeline|Switch)\b
+      match: \b(packet_in|packet_out|Pipeline|Switch)\b
 
   p4-tofino:
     patterns:
@@ -217,7 +217,7 @@ repository:
   p4-type-modifiers:
     patterns:
     - name: storage.modifier.p4
-      match: \b(abstract|const|extern|in|out|inout|packet_in|packet_out)\b
+      match: \b(abstract|const|extern|in|out|inout)\b
 
   p4-typedef:
     patterns:

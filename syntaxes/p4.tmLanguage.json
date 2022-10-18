@@ -197,7 +197,7 @@
         },
         {
           "name": "entity.name.type.std.p4",
-          "match": "\\b(Pipeline|Switch)\\b"
+          "match": "\\b(packet_in|packet_out|Pipeline|Switch)\\b"
         }
       ]
     },
@@ -451,7 +451,7 @@
       "patterns": [
         {
           "name": "storage.modifier.p4",
-          "match": "\\b(abstract|const|extern|in|out|inout|packet_in|packet_out)\\b"
+          "match": "\\b(abstract|const|extern|in|out|inout)\\b"
         }
       ]
     },
