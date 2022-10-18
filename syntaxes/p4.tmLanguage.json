@@ -26,9 +26,6 @@
           "include": "#p4-keywords"
         },
         {
-          "include": "#p4-punctuations"
-        },
-        {
           "include": "#p4-decorators"
         },
         {
@@ -85,7 +82,7 @@
       "patterns": [
         {
           "name": "keyword.control.$1.p4",
-          "match": "\\b(if|else|apply|select|return|transition|state|default)\\b"
+          "match": "\\b(if|else|apply|select|return|transition|default)\\b"
         },
         {
           "name": "keyword.language.$1.p4",
@@ -100,32 +97,14 @@
           "match": "\\b(main)\\b"
         },
         {
-          "name": "variable.other.constant.match-kind.p4",
-          "match": "\\b(exact|ternary|lpm|range|selector)"
-        },
-        {
           "name": "entity.name.tag.table.p4",
           "match": "\\b(key|actions|default_action)"
         },
         {
-          "name": "entity.name.function.std.p4",
-          "match": "\\b(extract|advance|lookahead|emit|execute|setInvalid|setValid|isValid)\\s*(?=[<\\(])"
+          "include": "#p4-std"
         },
         {
-          "name": "entity.name.type.std.p4",
-          "match": "\\b(Pipeline|Switch|Register|RegisterAction|DirectRegister|DirectRegisterAction|Checksum)\\b"
-        }
-      ]
-    },
-    "p4-punctuations": {
-      "patterns": [
-        {
-          "match": "(?<=(\\W|_))(_)(?=(\\W|_))",
-          "captures": {
-            "2": {
-              "name": "variable.omitted.p4"
-            }
-          }
+          "include": "#p4-tofino"
         }
       ]
     },
@@ -160,6 +139,14 @@
         },
         {
           "include": "#p4-support-types"
+        },
+        {
+          "match": "(?<=(\\W))(_)(?=(\\W))",
+          "captures": {
+            "2": {
+              "name": "variable.omitted.p4"
+            }
+          }
         }
       ]
     },
@@ -181,6 +168,50 @@
         },
         {
           "include": "#p4-table-contents"
+        }
+      ]
+    },
+    "p4-std": {
+      "patterns": [
+        {
+          "name": "variable.other.constant.match-kind.std.p4",
+          "match": "\\b(exact|ternary|lpm)\\b"
+        },
+        {
+          "name": "variable.other.constant.error.std.p4",
+          "match": "\\b(NoError|PacketTooShort|NoMatch|StackOutOfBounds|HeaderTooShort|ParserTimeout)\\b"
+        },
+        {
+          "name": "entity.name.function.std.p4",
+          "match": "\\b(extract|advance|lookahead|emit|execute|setInvalid|setValid|isValid)\\s*(?=[<\\(])"
+        },
+        {
+          "name": "entity.name.type.std.p4",
+          "match": "\\b(Pipeline|Switch)\\b"
+        }
+      ]
+    },
+    "p4-tofino": {
+      "patterns": [
+        {
+          "name": "entity.name.function.std.p4",
+          "match": "\\b(max|min|invalidate|port_metadata_unpack)"
+        },
+        {
+          "name": "variable.other.constant.match-kind.tofino.p4",
+          "match": "\\b(range|selector)\\b"
+        },
+        {
+          "name": "variable.other.constant.error.tofino.p4",
+          "match": "\\b(CounterRange|Timeout|PhvOwner|MultiWrite|IbufOverflow|IbufUnderflow)\\b"
+        },
+        {
+          "name": "variable.other.constant.enum.tofino.p4",
+          "match": "\\b(PACKETS|BYTES|GREEN|YELLOW|RED|PACKETS_AND_BYTES|FAIR|RESILIENT|IDENTITY|RANDOM|CRC8|CRC16|CRC32|CRC64|CSUM16|MUL|SQR|SQRT|DIV|RSQR|RSQRT)\\b"
+        },
+        {
+          "name": "entity.name.type.tofino.p4",
+          "match": "\\b(Checksum|ParserCounter|ParserPriority|CRCPolymial|Hash|Random|Counter|DirectCounter|Meter|DirectMeter|Lpf|DirectLpf|Wred|DirectWred|Register|DirectRegister|RegisterParam|MathUnit|RegisterAction|DirectRegisterAction|ActionSelector|ActionProfile|Mirror|Resubmit|Digest)\\b"
         }
       ]
     },
@@ -363,7 +394,7 @@
         },
         {
           "name": "storage.type.built-in.primitive.p4",
-          "match": "\\b(void|error|match_kind|bool|int|bit)\\b"
+          "match": "\\b(void|error|match_kind|bool|int|bit|tuple)\\b"
         },
         {
           "name": "storage.type.built-in.primitive.p4",
@@ -384,6 +415,17 @@
               "name": "entity.name.function.p4"
             }
           }
+        },
+        {
+          "match": "\\b(package)\\s+([A-Z]\\w*+)\\s*(?=[<\\(])",
+          "captures": {
+            "1": {
+              "name": "storage.type.built-in.package.p4"
+            },
+            "2": {
+              "name": "entity.name.type.package.p4"
+            }
+          }
         }
       ]
     },
@@ -391,7 +433,7 @@
       "patterns": [
         {
           "name": "storage.modifier.p4",
-          "match": "\\b(const|extern|in|out|inout|packet_in|packet_out)\\b"
+          "match": "\\b(abstract|const|extern|in|out|inout|packet_in|packet_out)\\b"
         }
       ]
     },
@@ -438,7 +480,19 @@
           "end": "(?=\\})",
           "patterns": [
             {
-              "include": "#p4-base-types"
+              "include": "#p4-keywords"
+            },
+            {
+              "include": "#p4-types"
+            },
+            {
+              "include": "#p4-literal-numbers"
+            },
+            {
+              "include": "#p4-lex-continuation"
+            },
+            {
+              "include": "#p4-comments"
             }
           ]
         },
@@ -452,7 +506,19 @@
           "end": "(?=\\})",
           "patterns": [
             {
-              "include": "#p4-base-types"
+              "include": "#p4-keywords"
+            },
+            {
+              "include": "#p4-types"
+            },
+            {
+              "include": "#p4-literal-numbers"
+            },
+            {
+              "include": "#p4-lex-continuation"
+            },
+            {
+              "include": "#p4-comments"
             }
           ]
         }
@@ -623,7 +689,7 @@
           "match": "\\b(state)\\s+(?!(start))([A-Za-z_]\\w*+)\\s*(?=\\{)",
           "captures": {
             "1": {
-              "name": "keyword.control.state.p4"
+              "name": "storage.type.built-in.state.p4"
             },
             "3": {
               "name": "entity.name.function.state.p4"
@@ -634,7 +700,7 @@
           "match": "\\b(state)\\s+(start)\\s*(?=\\{)",
           "captures": {
             "1": {
-              "name": "keyword.control.state.p4"
+              "name": "storage.type.built-in.state.p4"
             },
             "2": {
               "name": "variable.other.constant.start.p4"
@@ -653,12 +719,30 @@
           }
         },
         {
-          "match": "\\b([A-Za-z_]\\w*+)(?=\\(\\))(?!(\\s*[A-Za-z_]))",
-          "captures": {
+          "begin": "\\b([A-Za-z_]\\w*+)\\s*(?=\\()",
+          "beginCaptures": {
             "1": {
               "name": "entity.name.function.p4"
             }
-          }
+          },
+          "end": "(?=\\))",
+          "patterns": [
+            {
+              "include": "#p4-preprocessors"
+            },
+            {
+              "include": "#p4-keywords"
+            },
+            {
+              "include": "#p4-comments"
+            },
+            {
+              "include": "#p4-types"
+            },
+            {
+              "include": "#p4-literal-numbers"
+            }
+          ]
         },
         {
           "match": "\\b(apply)\\s*(?:\\()",

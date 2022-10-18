@@ -2,7 +2,7 @@
   "name": "yap4h",
   "displayName": "yap4h",
   "description": "Yet another p4 highlighter",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "engines": {
     "vscode": "^1.72.0"
   },

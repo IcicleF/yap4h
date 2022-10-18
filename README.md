@@ -30,3 +30,8 @@ Initial release.
 
 * Add support for underscores.
 * Fix wrong partial highlighting of `selector`.
+
+### 1.0.2
+
+* Fix wrong highlighting of underscors.
+* Add support for Tofino's std library.
